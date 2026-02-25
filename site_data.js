@@ -12,7 +12,7 @@ var siteConfig = {
     "heroButtonLink": "#products-section",
     "supportEmail": "support@pvaitshop.com",
     "whatsapp": "+1(419) 213-9612",
-    "telegram": "exbsmmit1",
+    "telegram": "pvaitshopsell",
     "themeColor": "#0B1120",
     "popupTitle": "",
     "popupMessage": "",
