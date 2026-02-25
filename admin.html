@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" sizes="any">
+    <title>Admin CMS - Exbsmmit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: sans-serif; }
+        .input-group { margin-bottom: 1rem; }
+        .input-label { display: block; font-size: 0.875rem; margin-bottom: 0.5rem; color: #94a3b8; font-weight: 600; }
+        .input-field { width: 100%; background: #1e293b; border: 1px solid #334155; color: white; padding: 0.5rem; border-radius: 0.375rem; }
+        .input-field:focus { outline: none; border-color: #38bdf8; }
+        .section-card { background: #1e293b; border: 1px solid #334155; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 2rem; }
+        .btn-primary { background: #0284c7; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        .btn-primary:hover { background: #0ea5e9; }
+        .btn-success { background: #16a34a; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: bold; cursor: pointer; display: inline-block; transition: background 0.2s; }
+        .btn-success:hover { background: #22c55e; }
+        .btn-danger { background: #ef4444; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; cursor: pointer; }
+        .btn-danger:hover { background: #dc2626; }
+        
+        /* Quill Dark Mode Overrides */
+        .ql-toolbar { background: #334155; border-color: #475569 !important; border-top-left-radius: 0.375rem; border-top-right-radius: 0.375rem; }
+        .ql-container { background: #1e293b; border-color: #475569 !important; color: white; border-bottom-left-radius: 0.375rem; border-bottom-right-radius: 0.375rem; font-size: 1rem; }
+        .ql-stroke { stroke: #cbd5e1 !important; }
+        .ql-fill { fill: #cbd5e1 !important; }
+        .ql-picker { color: #cbd5e1 !important; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="min-h-screen pb-24">
+
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 bg-[#0f172a] z-50 flex flex-col items-center justify-center">
+        <h1 class="text-3xl font-bold mb-6 text-white flex items-center gap-2">
+            <i data-lucide="shield-check" class="text-cyan-400"></i> Admin CMS
+        </h1>
+        <div class="bg-[#1e293b] p-8 rounded-xl border border-[#334155] shadow-2xl w-80">
+            <label class="text-sm text-slate-400 mb-2 block">Access Key</label>
+            <input type="password" id="password-input" placeholder="Enter Password" class="input-field mb-4">
+            <button type="button" id="login-btn" onclick="checkAuth()" class="btn-primary w-full py-2 flex items-center justify-center gap-2" style="pointer-events: auto !important; cursor: pointer !important;">
+                <span>Login</span>
+            </button>
+            
+            <div class="mt-6 border-t border-slate-700 pt-4">
+                <p class="text-xs text-slate-500 mb-1"><strong>Admin:</strong> admin123 (Full Access)</p>
+                <p class="text-xs text-slate-500"><strong>Editor:</strong> editor123 (Content Only)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="cms-content" class="hidden max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+            <div class="flex items-center gap-3">
+                <span class="bg-cyan-500/10 text-cyan-400 p-2 rounded-lg border border-cyan-500/20"><i data-lucide="layout-dashboard"></i></span>
+                <div>
+                    <h1 class="text-2xl font-bold text-white leading-tight">Exbsmmit CMS</h1>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span id="role-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 uppercase tracking-wider font-bold"></span>
+                        <button onclick="logout()" class="text-slate-500 hover:text-red-400 text-xs flex items-center gap-1 transition-colors">
+                            <i data-lucide="log-out" class="w-3 h-3"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2" id="nav-tabs">
+                <!-- Tabs injected by JS based on role -->
+            </div>
+        </div>
+
+        <!-- Tab: General Settings -->
+        <div id="tab-general" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Site Identity -->
+                <div class="section-card">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="globe"></i> Site Identity</h2>
+                    <div class="input-group">
+                        <label class="input-label">Site Title (Global)</label>
+                        <input type="text" id="conf-siteTitle" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Default Meta Description</label>
+                        <textarea id="conf-metaDescription" class="input-field h-24"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Favicon URL</label>
+                            <input type="text" id="conf-faviconUrl" class="input-field" placeholder="/favicon.svg">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Logo Image URL (Optional)</label>
+                            <input type="text" id="conf-logoUrl" class="input-field" placeholder="Overrides text logo if set">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Logo Text</label>
+                            <input type="text" id="conf-logoText" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Logo Badge</label>
+                            <input type="text" id="conf-logoBadge" class="input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Section -->
+                <div class="section-card">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="layout-template"></i> Homepage Hero</h2>
+                    <div class="input-group">
+                        <label class="input-label">Hero Title (HTML Supported)</label>
+                        <textarea id="conf-heroTitle" class="input-field h-24 font-mono text-sm"></textarea>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Hero Subtitle</label>
+                        <textarea id="conf-heroSubtitle" class="input-field h-20"></textarea>
+                    </div>
+                </div>
+
+                <!-- Contact & Social -->
+                <div class="section-card">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="contact"></i> Contact Info</h2>
+                    <div class="input-group">
+                        <label class="input-label">Support Email</label>
+                        <input type="text" id="conf-supportEmail" class="input-field">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">WhatsApp</label>
+                            <input type="text" id="conf-whatsapp" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Telegram</label>
+                            <input type="text" id="conf-telegram" class="input-field">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Popup -->
+                <div class="section-card">
+                    <h2 class="text-xl font-bold text-white mb-4 border-b border-slate-700 pb-2 flex items-center gap-2"><i data-lucide="message-square"></i> Popup Settings</h2>
+                    <div class="input-group">
+                        <label class="input-label">Popup Title</label>
+                        <input type="text" id="conf-popupTitle" class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Popup Message</label>
+                        <input type="text" id="conf-popupMessage" class="input-field">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Categories -->
+        <div id="tab-categories" class="tab-content hidden">
+             <div class="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-200px)]">
+                <!-- List -->
+                <div class="w-full md:w-1/4 h-64 md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-2">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">Categories</h3>
+                    <div id="category-list" class="space-y-1"></div>
+                    <button onclick="createNewCategory()" class="w-full mt-4 btn-primary text-sm">+ Add Category</button>
+                </div>
+                
+                <!-- Editor -->
+                <div class="w-full md:w-3/4 h-auto md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-6 hidden" id="cat-editor">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-white">Edit Category</h2>
+                        <button onclick="deleteCurrentCategory()" class="text-red-400 text-sm hover:underline">Delete Category</button>
+                    </div>
+                    <input type="hidden" id="edit-cat-index">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Name</label>
+                            <input type="text" id="edit-cat-name" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Slug (URL)</label>
+                            <input type="text" id="edit-cat-slug" class="input-field">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Short Description (Meta Description)</label>
+                        <textarea id="edit-cat-desc" class="input-field h-20"></textarea>
+                    </div>
+
+                    <div class="input-group h-96 mb-12">
+                        <label class="input-label">Rich Content (Hub Page Text)</label>
+                        <div id="cat-quill-editor" class="h-80"></div>
+                    </div>
+
+                    <button onclick="saveCurrentCategory()" class="btn-primary w-full">Update Category</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Products -->
+        <div id="tab-products" class="tab-content hidden">
+            <div class="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-200px)]">
+                <!-- List -->
+                <div class="w-full md:w-1/4 h-64 md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-2">
+                    <button onclick="createNewProduct()" class="w-full mb-4 btn-primary text-sm">+ Add Product</button>
+                    <div class="mb-2 px-2">
+                        <input type="text" placeholder="Search products..." class="input-field text-sm" onkeyup="filterProducts(this.value)">
+                    </div>
+                    <div id="product-list" class="space-y-1"></div>
+                </div>
+
+                <!-- Editor -->
+                <div class="w-full md:w-3/4 h-auto md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-6 hidden" id="product-editor">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-2">
+                        <h2 class="text-xl font-bold text-white">Edit Product</h2>
+                        <button onclick="deleteCurrentProduct()" class="text-red-400 text-sm hover:underline">Delete Product</button>
+                    </div>
+                    <input type="hidden" id="edit-prod-id">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Product Title (H1)</label>
+                            <input type="text" id="edit-prod-title" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Status</label>
+                            <select id="edit-prod-active" class="input-field">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Image Display Title (Overlay)</label>
+                        <input type="text" id="edit-prod-display-title" class="input-field" placeholder="Text shown over the blue/image area">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Category</label>
+                            <select id="edit-prod-category" class="input-field"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">URL Slug</label>
+                            <input type="text" id="edit-prod-slug" class="input-field">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Product Image Name (e.g. image.jpg)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="edit-prod-image" class="input-field" placeholder="image.jpg">
+                            <input type="file" id="prod-image-upload" class="hidden" accept="image/*" onchange="handleImageUpload(this, 'edit-prod-image')">
+                            <button onclick="document.getElementById('prod-image-upload').click()" class="btn-primary text-xs whitespace-nowrap">Upload File</button>
+                            <button onclick="clearProductImage()" class="btn-primary text-xs whitespace-nowrap">Remove Image</button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">Just enter the filename if it's in /images/products/. Otherwise, enter full URL or Base64.</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Image Alt/Title (SEO)</label>
+                        <input type="text" id="edit-prod-image-title" class="input-field" placeholder="Descriptive title for the image">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Min Price</label>
+                            <input type="number" id="edit-prod-min" class="input-field" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Max Price</label>
+                            <input type="number" id="edit-prod-max" class="input-field" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Product Background Color</label>
+                            <select id="edit-prod-badge" class="input-field"></select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Is Sale?</label>
+                        <select id="edit-prod-sale" class="input-field">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Short Description (Card)</label>
+                        <textarea id="edit-prod-short" class="input-field h-20"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">SEO Meta Description</label>
+                        <textarea id="edit-prod-meta" class="input-field h-20"></textarea>
+                    </div>
+
+                    <div class="input-group h-[500px] mb-12">
+                        <label class="input-label">Full Description (Rich Content)</label>
+                        <div id="prod-quill-editor" class="h-[420px]"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mt-8">
+                        <div class="input-group">
+                            <label class="input-label">Features (Bullet Points)</label>
+                            <textarea id="edit-prod-features" class="input-field h-40" placeholder="One per line"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Pricing Options</label>
+                            <textarea id="edit-prod-pricing" class="input-field h-40" placeholder="One per line"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="input-group border-t border-slate-700 pt-6 mt-6">
+                        <label class="input-label">Related Products (Select to override defaults)</label>
+                        <div id="related-products-container" class="grid grid-cols-2 md:grid-cols-3 gap-2 h-40 overflow-y-auto p-2 bg-slate-800 rounded"></div>
+                    </div>
+
+                    <button onclick="saveCurrentProduct()" class="btn-primary w-full mt-6">Update Product</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Blog -->
+        <div id="tab-blog" class="tab-content hidden">
+            <div class="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-200px)]">
+                <!-- List -->
+                <div class="w-full md:w-1/4 h-64 md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-2">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">Articles</h3>
+                    <div id="blog-list" class="space-y-1"></div>
+                    <button onclick="createNewBlog()" class="w-full mt-4 btn-primary text-sm">+ Add Article</button>
+                </div>
+                
+                <!-- Editor -->
+                <div class="w-full md:w-3/4 h-auto md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-6 hidden" id="blog-editor">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-white">Edit Article</h2>
+                        <button onclick="deleteCurrentBlog()" class="text-red-400 text-sm hover:underline">Delete Article</button>
+                    </div>
+                    <input type="hidden" id="edit-blog-id">
+                    
+                    <div class="input-group">
+                        <label class="input-label">Title (H1)</label>
+                        <input type="text" id="edit-blog-title" class="input-field">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">Slug (URL)</label>
+                            <input type="text" id="edit-blog-slug" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Publish Date</label>
+                            <input type="text" id="edit-blog-date" class="input-field" placeholder="Jan 22, 2026">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Featured Image URL</label>
+                        <input type="text" id="edit-blog-image" class="input-field">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Excerpt (Meta Description)</label>
+                        <textarea id="edit-blog-excerpt" class="input-field h-24"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">CTA 1 Text</label>
+                            <input type="text" id="edit-blog-cta1-text" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">CTA 1 Link</label>
+                            <input type="text" id="edit-blog-cta1-link" class="input-field">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">CTA 2 Text</label>
+                            <input type="text" id="edit-blog-cta2-text" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">CTA 2 Link</label>
+                            <input type="text" id="edit-blog-cta2-link" class="input-field">
+                        </div>
+                    </div>
+
+                    <div class="input-group h-[600px] mb-12">
+                        <label class="input-label">Article Content</label>
+                        <div id="blog-quill-editor" class="h-[520px]"></div>
+                    </div>
+
+                    <div class="input-group border-t border-slate-700 pt-6 mt-6">
+                        <label class="input-label">Related Products (Select to show in article)</label>
+                        <div id="blog-related-products-container" class="grid grid-cols-2 md:grid-cols-3 gap-2 h-40 overflow-y-auto p-2 bg-slate-800 rounded"></div>
+                    </div>
+
+                    <button onclick="saveCurrentBlog()" class="btn-primary w-full mt-6">Update Article</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Reviews -->
+        <div id="tab-reviews" class="tab-content hidden">
+            <div class="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-200px)]">
+                <!-- List -->
+                <div class="w-full md:w-1/4 h-64 md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-2">
+                    <button onclick="createNewReview()" class="w-full mb-4 btn-primary text-sm">+ Add Review</button>
+                    <div id="review-list" class="space-y-1"></div>
+                </div>
+                
+                <!-- Editor -->
+                <div class="w-full md:w-3/4 h-auto md:h-full overflow-y-auto bg-[#1e293b] border border-slate-700 rounded-lg p-6 hidden" id="review-editor">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-white">Edit Review</h2>
+                        <button onclick="deleteCurrentReview()" class="text-red-400 text-sm hover:underline">Delete Review</button>
+                    </div>
+                    <input type="hidden" id="edit-review-index">
+
+                    <div class="input-group">
+                        <label class="input-label">Product</label>
+                        <select id="edit-review-product" class="input-field"></select>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="input-group">
+                            <label class="input-label">User</label>
+                            <input type="text" id="edit-review-user" class="input-field">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Rating</label>
+                            <input type="number" id="edit-review-rating" class="input-field" step="0.5" max="5">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Date</label>
+                            <input type="text" id="edit-review-date" class="input-field" placeholder="Jan 22, 2026">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Review Text</label>
+                        <textarea id="edit-review-text" class="input-field h-32"></textarea>
+                    </div>
+
+                    <button onclick="saveCurrentReview()" class="btn-primary w-full">Update Review</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Global Save Action -->
+    <div id="global-save-bar" class="fixed bottom-0 left-0 w-full bg-[#1e293b] border-t border-slate-700 p-4 flex items-center justify-between z-40 shadow-2xl hidden">
+        <div class="text-sm text-slate-400 flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4"></i> Changes are held in memory. Click Save to apply and rebuild site.
+        </div>
+        <button onclick="saveToDisk()" id="save-btn" class="btn-success flex items-center gap-2">
+            <i data-lucide="save"></i> Save & Rebuild Site
+        </button>
+    </div>
+
+    <script>
+        // Cache-busting for site_data.js
+        document.write('<script src="site_data.js?v=' + Date.now() + '"><\/script>');
+    </script>
+    <script>
+        // Global Error Handling
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Global Error:', msg, 'at', url, ':', lineNo);
+            // alert('Error: ' + msg + '\nLine: ' + lineNo);
+            return false;
+        };
+
+        // --- Global State ---
+        let currentUserRole = null; 
+
+        // Data Copies
+        let cmsConfig = {};
+        let cmsCategories = [];
+        let cmsProducts = [];
+        let cmsBlogs = [];
+        let cmsReviews = [];
+        let cmsLandingData = {};
+
+        // Editors
+        let prodQuill, catQuill, blogQuill;
+
+        // --- Helpers ---
+        function handleImageUpload(input, targetId) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Security: Validate File Type
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+            if (!validTypes.includes(file.type)) {
+                alert('Invalid file type. Only JPG, PNG, WEBP, and SVG allowed.');
+                input.value = ''; // Clear input
+                return;
+            }
+
+            // Security: Validate File Size (Max 500KB)
+            if (file.size > 512 * 1024) {
+                alert('Image is too large. Max 500KB.');
+                input.value = ''; // Clear input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Sanitize output (though Data URL is generally safe in src)
+                document.getElementById(targetId).value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearProductImage() {
+            const imageInput = document.getElementById('edit-prod-image');
+            const fileInput = document.getElementById('prod-image-upload');
+            if (imageInput) imageInput.value = '';
+            if (fileInput) fileInput.value = '';
+        }
+
+        // Initialize when ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Admin CMS loaded.");
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            try {
+                if (typeof localStorage !== 'undefined' && localStorage.getItem('cms_logged_in') === 'true') {
+                    currentUserRole = localStorage.getItem('cms_role') || 'admin';
+                    loginSuccess();
+                }
+                const passInput = document.getElementById('password-input');
+                if (passInput) {
+                    passInput.focus();
+                    passInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') checkAuth();
+                    });
+                }
+            } catch (e) {
+                console.warn("Init Error:", e);
+            }
+        });
+
+        // --- Auth & Init ---
+        function checkAuth() {
+            console.log("checkAuth triggered");
+            const passInput = document.getElementById('password-input');
+            if (!passInput) return;
+
+            const pass = passInput.value.trim();
+            
+            if(pass === 'admin123' || pass === 'editor123') {
+                currentUserRole = (pass === 'admin123') ? 'admin' : 'editor';
+                try {
+                    localStorage.setItem('cms_logged_in', 'true');
+                    localStorage.setItem('cms_role', currentUserRole);
+                } catch (e) {}
+                loginSuccess();
+            } else {
+                alert('Invalid Access Key');
+            }
+        }
+
+        function logout() {
+            try {
+                localStorage.removeItem('cms_logged_in');
+                localStorage.removeItem('cms_role');
+            } catch (e) {}
+            window.location.reload();
+        }
+
+        function loginSuccess() {
+            console.log("loginSuccess triggered");
+            try {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('cms-content').classList.remove('hidden');
+                document.getElementById('global-save-bar').classList.remove('hidden');
+                document.getElementById('role-badge').textContent = currentUserRole.toUpperCase();
+                
+                console.log("Initializing data...");
+                initData();
+                console.log("Initializing tabs...");
+                initTabs();
+                console.log("Initializing editors...");
+                initEditors();
+                console.log("Rendering all...");
+                renderAll();
+                console.log("Login sequence complete.");
+
+                // Auto-generate slug and image title from title
+                const titleInput = document.getElementById('edit-prod-title');
+                if (titleInput) {
+                    titleInput.addEventListener('input', function() {
+                        const title = this.value;
+                        const slugInput = document.getElementById('edit-prod-slug');
+                        const imageTitleInput = document.getElementById('edit-prod-image-title');
+                        
+                        if (slugInput && slugInput.value === '') {
+                            slugInput.value = title.toLowerCase().trim().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+                        }
+                        if (imageTitleInput && imageTitleInput.value === '') {
+                            imageTitleInput.value = title;
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Login Success Error:", err);
+                alert("Error initializing CMS: " + err.message);
+            }
+        }
+
+        function initData() {
+            console.log("initData started");
+            if(typeof siteConfig === 'undefined') { alert('Error loading site_data.js: siteConfig missing'); return; }
+            if(typeof gradients === 'undefined') { console.warn("Gradients missing from site_data.js, using fallback"); window.gradients = {}; }
+            cmsConfig = JSON.parse(JSON.stringify(siteConfig));
+            cmsCategories = typeof categories !== 'undefined' ? JSON.parse(JSON.stringify(categories)) : [];
+            cmsProducts = typeof products !== 'undefined' ? JSON.parse(JSON.stringify(products)) : [];
+            cmsBlogs = typeof blogs !== 'undefined' ? JSON.parse(JSON.stringify(blogs)) : [];
+            cmsReviews = typeof reviewsData !== 'undefined' ? JSON.parse(JSON.stringify(reviewsData)) : [];
+            cmsLandingData = typeof landingPageData !== 'undefined' ? JSON.parse(JSON.stringify(landingPageData)) : {};
+        }
+
+        function initEditors() {
+            if (typeof Quill === 'undefined') {
+                console.warn("Quill editor library not loaded.");
+                return;
+            }
+            const toolbarOptions = [
+                [{ 'header': [2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'clean']
+            ];
+
+            try {
+                if (document.getElementById('prod-quill-editor')) {
+                    prodQuill = new Quill('#prod-quill-editor', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+                }
+                if (document.getElementById('cat-quill-editor')) {
+                    catQuill = new Quill('#cat-quill-editor', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+                }
+                if (document.getElementById('blog-quill-editor')) {
+                    blogQuill = new Quill('#blog-quill-editor', { theme: 'snow', modules: { toolbar: toolbarOptions } });
+                }
+            } catch (e) {
+                console.error("Error initializing Quill editors:", e);
+            }
+        }
+
+        function initTabs() {
+            const tabs = [
+                { id: 'general', label: 'General Settings', roles: ['admin'] },
+                { id: 'categories', label: 'Categories', roles: ['admin'] }, // Categories affect structure, Admin only? Or Editor too? Let's say Admin.
+                { id: 'products', label: 'Products', roles: ['admin', 'editor'] },
+                { id: 'blog', label: 'Blog', roles: ['admin', 'editor'] },
+                { id: 'reviews', label: 'Reviews', roles: ['admin', 'editor'] }
+            ];
+
+            const navContainer = document.getElementById('nav-tabs');
+            navContainer.innerHTML = '';
+
+            tabs.forEach(tab => {
+                if(tab.roles.includes(currentUserRole)) {
+                    const btn = document.createElement('button');
+                    btn.textContent = tab.label;
+                    btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition bg-slate-800 text-slate-400 hover:bg-slate-700';
+                    btn.onclick = () => switchTab(tab.id, btn);
+                    navContainer.appendChild(btn);
+                    
+                    // Show first available tab
+                    if(!document.querySelector('.tab-content:not(.hidden)')) {
+                        switchTab(tab.id, btn);
+                    }
+                }
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            // Reset buttons
+            const btns = document.getElementById('nav-tabs').children;
+            for(let b of btns) {
+                b.className = 'px-4 py-2 rounded-lg text-sm font-bold transition bg-slate-800 text-slate-400 hover:bg-slate-700';
+            }
+            btn.className = 'px-4 py-2 rounded-lg text-sm font-bold transition bg-cyan-600 text-white shadow-lg shadow-cyan-500/20';
+        }
+
+        // --- Renderers ---
+        function renderAll() {
+            if(currentUserRole === 'admin') loadGeneral();
+            renderCategories();
+            renderProducts();
+            renderBlogs();
+            renderReviews();
+        }
+
+        // --- General ---
+        function loadGeneral() {
+            const fields = ['siteTitle', 'metaDescription', 'faviconUrl', 'logoUrl', 'logoText', 'logoBadge', 'heroTitle', 'heroSubtitle', 'supportEmail', 'whatsapp', 'telegram', 'popupTitle', 'popupMessage'];
+            fields.forEach(f => {
+                const el = document.getElementById(`conf-${f}`);
+                if(el) el.value = cmsConfig[f] || '';
+            });
+        }
+        function saveGeneral() {
+            const fields = ['siteTitle', 'metaDescription', 'faviconUrl', 'logoUrl', 'logoText', 'logoBadge', 'heroTitle', 'heroSubtitle', 'supportEmail', 'whatsapp', 'telegram', 'popupTitle', 'popupMessage'];
+            fields.forEach(f => {
+                const el = document.getElementById(`conf-${f}`);
+                if(el) cmsConfig[f] = el.value;
+            });
+        }
+
+        // --- Categories ---
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = cmsCategories.map((c, i) => `
+                <div onclick="loadCategory(${i})" class="p-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer text-sm font-medium text-slate-300 border-l-2 border-transparent hover:border-cyan-400 transition flex justify-between items-center group">
+                    <span>${c.name}</span>
+                    <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">Edit</span>
+                </div>
+            `).join('');
+        }
+        let currentCatIndex = null;
+        function loadCategory(index) {
+            currentCatIndex = index;
+            const c = cmsCategories[index];
+            document.getElementById('cat-editor').classList.remove('hidden');
+            document.getElementById('edit-cat-name').value = c.name;
+            document.getElementById('edit-cat-slug').value = c.slug;
+            document.getElementById('edit-cat-desc').value = c.description || '';
+            catQuill.root.innerHTML = c.content || '';
+        }
+        function saveCurrentCategory() {
+            if(currentCatIndex === null) return;
+            cmsCategories[currentCatIndex].name = document.getElementById('edit-cat-name').value;
+            cmsCategories[currentCatIndex].slug = document.getElementById('edit-cat-slug').value;
+            cmsCategories[currentCatIndex].description = document.getElementById('edit-cat-desc').value;
+            cmsCategories[currentCatIndex].content = catQuill.root.innerHTML;
+            if (!Array.isArray(cmsCategories[currentCatIndex].items)) cmsCategories[currentCatIndex].items = [];
+            alert('Category Updated in Memory');
+            renderCategories();
+        }
+        function createNewCategory() {
+            cmsCategories.push({ name: 'New Category', slug: 'new-category', description: '', content: '', items: [] });
+            renderCategories();
+            loadCategory(cmsCategories.length - 1);
+        }
+        function deleteCurrentCategory() {
+            if(confirm('Delete this category?')) {
+                cmsCategories.splice(currentCatIndex, 1);
+                document.getElementById('cat-editor').classList.add('hidden');
+                renderCategories();
+            }
+        }
+
+        // --- Products ---
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            list.innerHTML = cmsProducts.map(p => `
+                <div onclick="loadProduct(${p.id})" class="p-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer text-sm text-slate-300 border-l-2 border-transparent hover:border-cyan-400 transition flex justify-between items-center group">
+                    <div class="truncate w-2/3 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ${p.active !== false ? 'bg-green-500' : 'bg-red-500'}"></span>
+                        <span>${p.title}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500">$${p.min_price}</span>
+                        <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">Edit</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Populate Category Dropdown
+            const select = document.getElementById('edit-prod-category');
+            select.innerHTML = cmsCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+
+            // Populate Badge Color Dropdown
+            const badgeSelect = document.getElementById('edit-prod-badge');
+            badgeSelect.innerHTML = Object.keys(gradients).map(k => `<option value="${k}">${k}</option>`).join('');
+        }
+        let currentProdId = null;
+        function loadProduct(id) {
+            currentProdId = id;
+            const p = cmsProducts.find(x => x.id == id);
+            if(!p) return;
+            document.getElementById('product-editor').classList.remove('hidden');
+            
+            document.getElementById('edit-prod-title').value = p.title;
+            document.getElementById('edit-prod-active').value = (p.active !== false).toString();
+            document.getElementById('edit-prod-display-title').value = p.display_title || '';
+            document.getElementById('edit-prod-category').value = p.category;
+            document.getElementById('edit-prod-image').value = p.image || '';
+            document.getElementById('edit-prod-image-title').value = p.image_title || '';
+            document.getElementById('edit-prod-min').value = p.min_price;
+            document.getElementById('edit-prod-max').value = p.max_price;
+            document.getElementById('edit-prod-badge').value = p.badge_color;
+            document.getElementById('edit-prod-sale').value = p.is_sale.toString();
+            document.getElementById('edit-prod-slug').value = p.slug;
+            document.getElementById('edit-prod-short').value = p.short_description;
+            document.getElementById('edit-prod-meta').value = p.meta_description || '';
+            document.getElementById('edit-prod-features').value = (p.features || []).join('\n');
+            document.getElementById('edit-prod-pricing').value = (p.pricing || []).join('\n');
+            
+            // Fallback to description if long_description is missing
+            const desc = p.long_description || p.description || '';
+            prodQuill.root.innerHTML = desc;
+
+            // Related Products
+            const relatedContainer = document.getElementById('related-products-container');
+            const currentRelated = (p.related_ids || []).map(rid => String(rid)); // Convert to strings for robust comparison
+            relatedContainer.innerHTML = cmsProducts.filter(x => x.id !== id).map(prod => `
+                <label class="flex items-center gap-3 text-xs text-slate-300 p-2 hover:bg-slate-700/50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-white/5">
+                    <input type="checkbox" class="related-cb w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-800" value="${prod.id}" ${currentRelated.includes(String(prod.id)) ? 'checked' : ''}>
+                    <span class="truncate font-medium">${prod.title}</span>
+                </label>
+            `).join('');
+        }
+        async function saveCurrentProduct() {
+            if(!currentProdId) return;
+            const idx = cmsProducts.findIndex(x => x.id == currentProdId);
+            if(idx === -1) { alert('Error: Product not found in memory.'); return; }
+            const p = cmsProducts[idx];
+            
+            // 1. Capture ALL old identifiers BEFORE updating p
+            const oldIdentifiers = [p.title, p.image_title, p.display_title, p.slug].filter(x => x);
+            
+            // 2. Update p with NEW values from the form
+            p.title = document.getElementById('edit-prod-title').value;
+            p.active = document.getElementById('edit-prod-active').value === 'true';
+            p.display_title = document.getElementById('edit-prod-display-title').value;
+            p.category = document.getElementById('edit-prod-category').value;
+            p.image = document.getElementById('edit-prod-image').value;
+            p.image_title = document.getElementById('edit-prod-image-title').value;
+            p.min_price = parseFloat(document.getElementById('edit-prod-min').value);
+            p.max_price = parseFloat(document.getElementById('edit-prod-max').value);
+            p.badge_color = document.getElementById('edit-prod-badge').value;
+            p.is_sale = document.getElementById('edit-prod-sale').value === 'true';
+            p.slug = document.getElementById('edit-prod-slug').value.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '').replace(/^-+|-+$/g, '');
+            p.short_description = document.getElementById('edit-prod-short').value;
+            p.meta_description = document.getElementById('edit-prod-meta').value;
+            p.features = document.getElementById('edit-prod-features').value.split('\n').filter(x => x.trim());
+            p.pricing = document.getElementById('edit-prod-pricing').value.split('\n').filter(x => x.trim());
+            p.long_description = prodQuill.root.innerHTML;
+
+            const newName = p.display_title || p.title;
+            const newCategory = p.category;
+
+            // 3. Update categories array - remove from all, then add to correct one
+            cmsCategories.forEach(cat => {
+                if (!cat.items) cat.items = [];
+                // Remove any reference to this product (using old OR new identifiers)
+                cat.items = cat.items.filter(item => {
+                    const isThisProduct = (oldIdentifiers.includes(item) || item === p.title || item === p.display_title || item === p.slug);
+                    return !isThisProduct;
+                });
+            });
+
+            // 4. Add to the target category
+            const targetCat = cmsCategories.find(c => c.name === newCategory);
+            if (targetCat) {
+                if (!targetCat.items) targetCat.items = [];
+                targetCat.items.push(newName);
+            }
+            
+            // Related
+            const cbs = document.querySelectorAll('.related-cb:checked');
+            p.related_ids = Array.from(cbs).map(cb => parseInt(cb.value));
+
+            alert('Product Updated in Memory');
+            renderProducts();
+        }
+        function createNewProduct() {
+            const newId = cmsProducts.length > 0 ? Math.max(...cmsProducts.map(p => p.id)) + 1 : 1;
+            const newProd = {
+                id: newId,
+                active: true,
+                title: 'New Product',
+                display_title: '',
+                slug: 'new-product-' + newId,
+                category: cmsCategories[0] ? cmsCategories[0].name : 'Uncategorized',
+                image: '',
+                image_title: '',
+                min_price: 9.99,
+                max_price: 19.99,
+                badge_color: 'blue',
+                is_sale: false,
+                short_description: 'Short description here.',
+                meta_description: '',
+                features: ['Feature 1', 'Feature 2'],
+                pricing: ['$10 - Option 1', '$20 - Option 2'],
+                long_description: '<p>Detailed description...</p>',
+                related_ids: []
+            };
+            cmsProducts.unshift(newProd);
+            renderProducts();
+            loadProduct(newId);
+        }
+        function deleteCurrentProduct() {
+            if(confirm('Delete this product? This cannot be undone.')) {
+                const idx = cmsProducts.findIndex(x => x.id == currentProdId);
+                if (idx > -1) {
+                    cmsProducts.splice(idx, 1);
+                    document.getElementById('product-editor').classList.add('hidden');
+                    renderProducts();
+                }
+            }
+        }
+        function filterProducts(query) {
+            const lower = query.toLowerCase();
+            const items = document.getElementById('product-list').children;
+            for(let item of items) {
+                item.style.display = item.textContent.toLowerCase().includes(lower) ? 'flex' : 'none';
+            }
+        }
+
+        // --- Blogs ---
+        function renderBlogs() {
+            const list = document.getElementById('blog-list');
+            list.innerHTML = cmsBlogs.map(b => `
+                <div onclick="loadBlog(${b.id})" class="p-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer text-sm text-slate-300 border-l-2 border-transparent hover:border-cyan-400 transition flex justify-between items-center group">
+                    <span class="truncate w-3/4">${b.title}</span>
+                    <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">Edit</span>
+                </div>
+            `).join('');
+        }
+        let currentBlogId = null;
+        function loadBlog(id) {
+            currentBlogId = id;
+            const b = cmsBlogs.find(x => x.id == id);
+            if(!b) return;
+            document.getElementById('blog-editor').classList.remove('hidden');
+            
+            document.getElementById('edit-blog-title').value = b.title;
+            document.getElementById('edit-blog-slug').value = b.slug;
+            document.getElementById('edit-blog-date').value = b.date;
+            document.getElementById('edit-blog-image').value = b.image || '';
+            document.getElementById('edit-blog-excerpt').value = b.excerpt || '';
+            
+            // Populating CTA fields
+            document.getElementById('edit-blog-cta1-text').value = b.cta_1_text || '';
+            document.getElementById('edit-blog-cta1-link').value = b.cta_1_link || '';
+            document.getElementById('edit-blog-cta2-text').value = b.cta_2_text || '';
+            document.getElementById('edit-blog-cta2-link').value = b.cta_2_link || '';
+
+            blogQuill.root.innerHTML = b.content || '';
+
+            // Related Products for Blog
+            const relatedContainer = document.getElementById('blog-related-products-container');
+            const currentRelated = (b.related_ids || []).map(rid => String(rid));
+            relatedContainer.innerHTML = cmsProducts.map(prod => `
+                <label class="flex items-center gap-3 text-xs text-slate-300 p-2 hover:bg-slate-700/50 rounded-lg cursor-pointer transition-colors border border-transparent hover:border-white/5">
+                    <input type="checkbox" class="blog-related-cb w-4 h-4 rounded border-slate-600 bg-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-800" value="${prod.id}" ${currentRelated.includes(String(prod.id)) ? 'checked' : ''}>
+                    <span class="truncate font-medium">${prod.title}</span>
+                </label>
+            `).join('');
+        }
+        function saveCurrentBlog() {
+            if(!currentBlogId) return;
+            const idx = cmsBlogs.findIndex(x => x.id === currentBlogId);
+            
+            cmsBlogs[idx].title = document.getElementById('edit-blog-title').value;
+            cmsBlogs[idx].slug = document.getElementById('edit-blog-slug').value;
+            cmsBlogs[idx].date = document.getElementById('edit-blog-date').value;
+            cmsBlogs[idx].image = document.getElementById('edit-blog-image').value;
+            
+            // CTAs
+            cmsBlogs[idx].cta_1_text = document.getElementById('edit-blog-cta1-text').value;
+            cmsBlogs[idx].cta_1_link = document.getElementById('edit-blog-cta1-link').value;
+            cmsBlogs[idx].cta_2_text = document.getElementById('edit-blog-cta2-text').value;
+            cmsBlogs[idx].cta_2_link = document.getElementById('edit-blog-cta2-link').value;
+
+            cmsBlogs[idx].excerpt = document.getElementById('edit-blog-excerpt').value;
+            cmsBlogs[idx].content = blogQuill.root.innerHTML;
+            
+            // Save Related Products
+            const cbs = document.querySelectorAll('.blog-related-cb:checked');
+            cmsBlogs[idx].related_ids = Array.from(cbs).map(cb => parseInt(cb.value));
+
+            alert('Blog Updated in Memory');
+            renderBlogs();
+        }
+        function createNewBlog() {
+            const newId = cmsBlogs.length > 0 ? Math.max(...cmsBlogs.map(b => b.id)) + 1 : 1;
+            cmsBlogs.unshift({
+                id: newId,
+                title: 'New Article',
+                slug: 'new-article-' + newId,
+                date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}),
+                excerpt: '',
+                content: '<p>Write your article here...</p>'
+            });
+            renderBlogs();
+            loadBlog(newId);
+        }
+        function deleteCurrentBlog() {
+            if(confirm('Delete this article?')) {
+                const idx = cmsBlogs.findIndex(x => x.id === currentBlogId);
+                cmsBlogs.splice(idx, 1);
+                document.getElementById('blog-editor').classList.add('hidden');
+                renderBlogs();
+            }
+        }
+
+        // --- Reviews ---
+        function renderReviews() {
+            const list = document.getElementById('review-list');
+            list.innerHTML = cmsReviews.map((r, i) => `
+                <div onclick="loadReview(${i})" class="p-3 rounded bg-slate-800 hover:bg-slate-700 cursor-pointer text-sm text-slate-300 border-l-2 border-transparent hover:border-cyan-400 transition flex justify-between items-center group">
+                    <div>
+                        <div class="font-bold">${r.user}</div>
+                        <div class="text-xs opacity-70">${r.rating} ★</div>
+                    </div>
+                    <span class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">Edit</span>
+                </div>
+            `).join('');
+            
+            const prodSelect = document.getElementById('edit-review-product');
+            prodSelect.innerHTML = cmsProducts.map(p => `<option value="${p.id}">${p.title}</option>`).join('');
+        }
+        let currentReviewIndex = null;
+        function loadReview(index) {
+            currentReviewIndex = index;
+            const r = cmsReviews[index];
+            document.getElementById('review-editor').classList.remove('hidden');
+            
+            document.getElementById('edit-review-product').value = r.productId;
+            document.getElementById('edit-review-user').value = r.user;
+            document.getElementById('edit-review-rating').value = r.rating;
+            document.getElementById('edit-review-date').value = r.date || '';
+            document.getElementById('edit-review-text').value = r.text;
+        }
+        function saveCurrentReview() {
+            if(currentReviewIndex === null) return;
+            cmsReviews[currentReviewIndex].productId = parseInt(document.getElementById('edit-review-product').value);
+            cmsReviews[currentReviewIndex].user = document.getElementById('edit-review-user').value;
+            cmsReviews[currentReviewIndex].rating = parseFloat(document.getElementById('edit-review-rating').value);
+            cmsReviews[currentReviewIndex].date = document.getElementById('edit-review-date').value;
+            cmsReviews[currentReviewIndex].text = document.getElementById('edit-review-text').value;
+            alert('Review Updated in Memory');
+            renderReviews();
+        }
+        function createNewReview() {
+            const today = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+            cmsReviews.unshift({ productId: cmsProducts[0].id, user: 'New User', rating: 5, date: today, text: 'Great!' });
+            renderReviews();
+            loadReview(0);
+        }
+        function deleteCurrentReview() {
+            if(confirm('Delete?')) {
+                cmsReviews.splice(currentReviewIndex, 1);
+                document.getElementById('review-editor').classList.add('hidden');
+                renderReviews();
+            }
+        }
+
+
+        // --- SAVE TO DISK ---
+        async function saveToDisk() {
+            if(currentUserRole === 'admin') saveGeneral();
+            
+            const btn = document.getElementById('save-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> Saving & Building...';
+            btn.disabled = true;
+
+            // Construct site_data.js content
+            let content = `// site_data.js\n\n`;
+
+            
+            content += `// --- Site Configuration (CMS Data) ---\n`;
+            content += `var siteConfig = ${JSON.stringify(cmsConfig, null, 4)};\n\n`;
+            
+            content += `// Categories (Header)\n`;
+            content += `var categories = ${JSON.stringify(cmsCategories, null, 4)};\n\n`;
+            
+            content += `// Sample Reviews Data\n`;
+            content += `var reviewsData = ${JSON.stringify(cmsReviews, null, 4)};\n\n`;
+            
+            content += `// --- Landing Page Data (Canva Pro) ---\n`;
+            content += `var landingPageData = ${JSON.stringify(cmsLandingData, null, 4)};\n\n`;
+            
+            content += `// All 41 Products Data\n`;
+            content += `var products = ${JSON.stringify(cmsProducts, null, 4)};\n\n`;
+
+            content += `
+// --- MODIFIED: Always return 5 Stars ---
+function renderStars(rating) {
+    let starsHtml = '';
+    for (let i = 0; i < 5; i++) {
+        starsHtml += '<i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>';
+    }
+    return starsHtml;
+}
+
+// Helper: Gradients Map
+var gradients = {
+            blue: 'from-blue-400 via-blue-500 to-indigo-500',
+            red: 'from-red-400 via-red-500 to-rose-500',
+            pink: 'from-pink-400 via-rose-400 to-fuchsia-500',
+            green: 'from-green-400 via-emerald-400 to-teal-500',
+            purple: 'from-purple-400 via-indigo-400 to-violet-500',
+            orange: 'from-orange-400 via-orange-500 to-red-500',
+            cyan: 'from-cyan-400 via-sky-400 to-blue-500',
+            indigo: 'from-indigo-400 via-blue-500 to-indigo-600',
+            gray: 'from-gray-300 via-slate-300 to-slate-400',
+            'hyper-blue': 'from-blue-500 via-cyan-500 to-indigo-500',
+            oceanic: 'from-cyan-300 via-blue-400 to-emerald-400',
+            'electric-purple': 'from-purple-400 via-fuchsia-400 to-indigo-500',
+            'neon-pink': 'from-pink-400 via-fuchsia-500 to-rose-400',
+            'sunset-orange': 'from-orange-400 via-red-400 to-yellow-500',
+            'forest-green': 'from-green-400 via-emerald-500 to-lime-500',
+            'crimson-red': 'from-red-500 via-rose-500 to-pink-500',
+            'amber-gold': 'from-amber-300 via-yellow-400 to-orange-400',
+            'teal-wave': 'from-teal-300 via-cyan-400 to-blue-400',
+            'violet-storm': 'from-violet-400 via-purple-500 to-indigo-500',
+            'sky-blue': 'from-sky-300 via-blue-300 to-cyan-400',
+            'lime-zest': 'from-lime-300 via-green-300 to-yellow-400',
+            'fuchsia-pop': 'from-fuchsia-400 via-pink-400 to-indigo-400',
+            lipstick: 'from-rose-400 via-pink-500 to-orange-400',
+            obsidian: 'from-slate-300 via-gray-300 to-slate-200',
+            aqua: 'from-cyan-200 via-blue-300 to-indigo-300',
+            peacock: 'from-teal-400 via-emerald-400 to-cyan-500',
+            tangerine: 'from-orange-300 via-red-300 to-yellow-400',
+            smoke: 'from-slate-200 via-gray-200 to-slate-100',
+            galaxy: 'from-indigo-400 via-purple-400 to-blue-400',
+            jungle: 'from-emerald-400 via-green-400 to-teal-400',
+            solar: 'from-yellow-200 via-orange-300 to-red-400',
+            ice: 'from-blue-100 via-cyan-100 to-blue-200',
+            'rose-gold': 'from-rose-200 via-orange-100 to-amber-100',
+            'royal-indigo': 'from-indigo-400 via-blue-400 to-purple-400',
+            'slate-dark': 'from-slate-400 via-blue-400 to-indigo-400',
+            'midnight-blue': 'from-blue-400 via-indigo-400 to-cyan-400',
+            'berry-blast': 'from-pink-400 via-purple-400 to-red-400',
+            'mint-fresh': 'from-green-200 via-teal-200 to-emerald-300',
+            'coral-reef': 'from-orange-300 via-rose-300 to-yellow-300',
+            'deep-purple': 'from-purple-400 via-indigo-400 to-fuchsia-400',
+            'azure-sky': 'from-sky-300 via-blue-300 to-indigo-400',
+            'ruby-red': 'from-red-400 via-rose-400 to-orange-500',
+            'emerald-city': 'from-emerald-400 via-green-400 to-cyan-400',
+            'golden-hour': 'from-amber-300 via-orange-300 to-yellow-400',
+            'lavender-mist': 'from-violet-200 via-purple-200 to-pink-200',
+            'steel-gray': 'from-gray-300 via-slate-300 to-blue-300',
+            'autumn-leaf': 'from-orange-400 via-amber-400 to-red-400',
+            'tropical-sea': 'from-teal-300 via-emerald-300 to-cyan-400',
+            'cherry-blossom': 'from-pink-200 via-rose-200 to-orange-100',
+            grape: 'from-purple-400 via-fuchsia-400 to-pink-400'
+        };
+
+// Blog Posts (SEO Content)
+var blogs = ${JSON.stringify(cmsBlogs, null, 4)};
+
+// Expose to window for dynamic hydration
+(function() {
+    const g = typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : null);
+    if (!g) return;
+    g.siteConfig = siteConfig;
+    g.categories = categories;
+    g.reviewsData = reviewsData;
+    g.products = products;
+    g.blogs = blogs;
+    g.landingPageData = landingPageData;
+    if (typeof gradients !== 'undefined') g.gradients = gradients;
+})();
+`;
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: content
+                });
+
+                if (response.ok) {
+                    alert('✅ Saved Successfully!\n\nThe site content and slugs are now dynamic. Pushing site_data.js to GitHub is enough to update the entire website!');
+                } else {
+                    const msg = await response.text().catch(() => '');
+                    alert(`⚠️ Save failed: ${msg || response.statusText}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('⚠️ Server connection failed. Downloading site_data.js manually.\n\nSimply push this file to GitHub to update the website content and slugs instantly!');
+                const blob = new Blob([content], { type: 'text/javascript' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'site_data.js';
+                a.click();
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                lucide.createIcons();
+            }
+        }
+    </script>
+</body>
+</html>
