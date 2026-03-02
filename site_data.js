@@ -73,11 +73,11 @@ var categories = [
         "description": "Authentic reviews for Trustpilot, Tripadvisor, Glassdoor, and more to build your brand reputation.",
         "content": "\n            <h2 class=\"text-3xl font-bold text-white mb-6\">Build Unshakable Trust with Authentic Reviews</h2>\n            <p class=\"text-slate-300 mb-4 text-lg\">\n                Reputation is the currency of the internet. 90% of consumers read online reviews before visiting a business. \n                A single negative review can cost you customers, while a stream of positive feedback can skyrocket your sales.\n            </p>\n            <p class=\"text-slate-300 mb-8 text-lg\">\n                Our **Reviews Services** cover the most critical platforms: **Trustpilot**, **Tripadvisor**, **Glassdoor**, **Yelp**, and **Amazon**. \n                We provide detailed, relevant, and non-drop reviews that look 100% natural.\n            </p>\n\n            <h3 class=\"text-2xl font-bold text-white mb-4\">Platform-Specific Benefits</h3>\n            <div class=\"space-y-6 mb-8\">\n                <div class=\"flex flex-col md:flex-row gap-4 bg-[#1E293B] p-6 rounded-xl border border-white/5\">\n                    <div class=\"md:w-1/4 font-bold text-green-400 text-xl\">Trustpilot</div>\n                    <div class=\"md:w-3/4 text-slate-300\">\n                        The global standard for trust. High Trustpilot scores improve conversion rates on your website and lower PPC costs.\n                    </div>\n                </div>\n                <div class=\"flex flex-col md:flex-row gap-4 bg-[#1E293B] p-6 rounded-xl border border-white/5\">\n                    <div class=\"md:w-1/4 font-bold text-yellow-400 text-xl\">Tripadvisor</div>\n                    <div class=\"md:w-3/4 text-slate-300\">\n                        Essential for hospitality. Move up the rankings in your city and attract more tourists and diners.\n                    </div>\n                </div>\n                <div class=\"flex flex-col md:flex-row gap-4 bg-[#1E293B] p-6 rounded-xl border border-white/5\">\n                    <div class=\"md:w-1/4 font-bold text-green-600 text-xl\">Glassdoor</div>\n                    <div class=\"md:w-3/4 text-slate-300\">\n                        Attract top talent. Improve your employer branding and hiring process with positive employee feedback.\n                    </div>\n                </div>\n            </div>\n\n            <h3 class=\"text-2xl font-bold text-white mb-4\">Our \"Sticky Review\" Guarantee</h3>\n            <p class=\"text-slate-300 mb-6\">\n                Many providers offer cheap reviews that get deleted within days. We use a sophisticated method involving:\n            </p>\n            <ul class=\"list-disc pl-5 space-y-2 mb-8 text-slate-300\">\n                <li>Residential Proxies (Geo-targeted)</li>\n                <li>Real Browser Fingerprints</li>\n                <li>Human-written Content (Contextually relevant)</li>\n                <li>Drip-feed Delivery (Natural velocity)</li>\n            </ul>\n\n            <p class=\"text-slate-300\">\n                Protect your brand's reputation. Select your platform below and start building trust today.\n            </p>\n        ",
         "items": [
-            "Buy Yelp Reviews",
             "Trustpilot Reviews",
             "Tripadvisor Reviews",
             "Glassdoor Reviews",
-            "Amazon Reviews"
+            "Amazon Reviews",
+            "Buy Yelp Reviews"
         ]
     },
     {
@@ -939,10 +939,10 @@ var products = [
         "title": "Buy Yelp Reviews",
         "category": "Reviews",
         "slug": "buy-yelp-reviews",
-        "min_price": 30,
+        "min_price": 35,
         "max_price": 700,
-        "badge_color": "mint-fresh",
-        "is_sale": false,
+        "badge_color": "blue",
+        "is_sale": true,
         "short_description": "Elite Yelp reviews that stick to the recommended section.",
         "features": [
             "Elite Profiles",
