@@ -1,0 +1,7 @@
+# Netlify / Vercel Redirects
+# Force HTTPS is automatic on most modern hosts
+# Force non-WWW
+https://www.pvaitshop.com/* https://pvaitshop.com/:splat 301!
+
+# SPA / Clean URL fallback (if needed, though this is a static site)
+# /category/google -> /category/google/index.html
