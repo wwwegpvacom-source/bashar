@@ -41,8 +41,7 @@ var categories = [
             "Old Gmail Accounts",
             "Google Voice Accounts",
             "Google Maps Reviews",
-            "Google Ads Accounts",
-            "Verified Rubmaps.ch Accounts"
+            "Google Ads Accounts"
         ]
     },
     {
@@ -121,7 +120,8 @@ var categories = [
             "Verified Megapersonals  Accounts",
             "Verified Yesbackpage  Accounts",
             "Verified Secretbenefits  Accounts",
-            "Verified Onlyfans Accounts"
+            "Verified Onlyfans Accounts",
+            "Verified Rubmaps.ch Accounts"
         ]
     }
 ];
@@ -158,7 +158,7 @@ var products = [
         "title": "Buy verified rubmaps.ch Accounts",
         "display_title": "Verified Rubmaps.ch Accounts",
         "slug": "buy-verified-rubmapsch-accounts",
-        "category": "Google",
+        "category": "New",
         "image": "",
         "image_title": "Buy verified rubmaps.ch Accounts",
         "min_price": 80,
