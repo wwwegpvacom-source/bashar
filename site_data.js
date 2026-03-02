@@ -162,7 +162,7 @@ var products = [
         "image": "",
         "image_title": "Buy verified rubmaps.ch Accounts",
         "min_price": 80,
-        "max_price": 100,
+        "max_price": 200,
         "badge_color": "blue",
         "is_sale": true,
         "short_description": "Short description here.",
