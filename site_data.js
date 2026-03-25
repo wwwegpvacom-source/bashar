@@ -4,8 +4,7 @@
 var siteConfig = {
     "siteTitle": "PvaitShop",
     "metaDescription": "Boost Your Digital Presence With Real Accounts. Get verified accounts and authentic reviews instantly. Secure, fast, and reliable services.",
-    "logoText": "🛒 PvaitShop",
-    "logoBadge": "🔥",
+    "logoText": "PvaitShop",
     "heroTitle": "Boost Your <span class='text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-glow'>Digital Presence</span> <br/>With Real Accounts",
     "heroSubtitle": "Get verified accounts and authentic reviews instantly. <span class='text-slate-200'>Secure, fast, and reliable</span> services tailored for your business growth.",
     "heroButtonText": "Explore Services",
